@@ -9,6 +9,8 @@ import lombok.Setter;
 public class TransacaoRequestDTO {
 
     @NotNull
+    private Long id;
+    @NotNull
     private Long valor;
     @NotNull
     private String tipo;

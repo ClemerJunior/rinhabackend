@@ -3,6 +3,8 @@ package com.clemer.rinha.service;
 import com.clemer.rinha.domain.Cliente;
 import com.clemer.rinha.domain.dto.TransacaoRequestDTO;
 import com.clemer.rinha.domain.dto.TransacaoResponseDTO;
+import com.clemer.rinha.exceptions.ClienteInexistenteException;
+import com.clemer.rinha.exceptions.LimiteExcedidoException;
 import com.clemer.rinha.repositories.ClientRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class ClienteService {
             clientRepository.save(cliente);
             return new TransacaoResponseDTO(cliente.getLimite(), saldo);
         } else {
-            throw new Exception("Essa porra não existe");
+            throw new ClienteInexistenteException("Essa porra não existe");
         }
 
     }
@@ -42,7 +44,7 @@ public class ClienteService {
             return saldo + valorTransacao;
         } else {
             if(saldo - valorTransacao < (limite * -1)) {
-                throw new Exception("transacao invalida");
+                throw new LimiteExcedidoException("Se fudeu, não tem limite");
             } else {
                 return saldo - valorTransacao;
             }

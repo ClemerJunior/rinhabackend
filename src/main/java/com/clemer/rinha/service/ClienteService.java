@@ -4,6 +4,7 @@ import com.clemer.rinha.domain.Cliente;
 import com.clemer.rinha.domain.dto.TransacaoRequestDTO;
 import com.clemer.rinha.domain.dto.TransacaoResponseDTO;
 import com.clemer.rinha.repositories.ClientRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ public class ClienteService {
 
     private final ClientRepository clientRepository;
 
+    @Transactional
     public TransacaoResponseDTO efetuarTransacao(Long id, TransacaoRequestDTO dto) throws Exception {
         Optional<Cliente> clienteOptional = clientRepository.findById(id);
 

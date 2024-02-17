@@ -1,1 +1,28 @@
-
+server:
+  port: 8080
+---
+spring:
+  application:
+    name: rinha-api
+  datasource:
+    url: jdbc:mysql://localhost:5432/rinhadb
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password:
+    hikari:
+      read-only: false
+  jpa:
+    show-sql: false
+    generate-ddl: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: rinha
+        type: trace
+---
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: debug

@@ -17,7 +17,7 @@ public class ClienteController {
     @PostMapping("{id}/transacoes")
     public ResponseEntity<TransacaoResponseDTO> efetuarTransacao(
             @PathVariable Long id,
-            @RequestBody TransacaoRequestDTO requestDTO) throws Exception {
+            @RequestBody TransacaoRequestDTO requestDTO) {
 
         return ResponseEntity.ok(clienteService.efetuarTransacao(id, requestDTO));
     }

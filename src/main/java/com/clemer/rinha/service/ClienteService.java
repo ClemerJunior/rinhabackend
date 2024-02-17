@@ -19,7 +19,7 @@ public class ClienteService {
     private final ClientRepository clientRepository;
 
     @Transactional
-    public TransacaoResponseDTO efetuarTransacao(Long id, TransacaoRequestDTO dto) throws Exception {
+    public TransacaoResponseDTO efetuarTransacao(Long id, TransacaoRequestDTO dto) {
         Optional<Cliente> clienteOptional = clientRepository.findById(id);
 
         if(clienteOptional.isPresent()) {
@@ -34,7 +34,7 @@ public class ClienteService {
 
     }
 
-    public Long calcularSaldo(TransacaoRequestDTO dto, Cliente cliente) throws Exception {
+    public Long calcularSaldo(TransacaoRequestDTO dto, Cliente cliente) {
         String tipoTransacao = dto.getTipo();
         Long valorTransacao = dto.getValor();
         Long saldo = cliente.getSaldo();

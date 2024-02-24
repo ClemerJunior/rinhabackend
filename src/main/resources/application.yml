@@ -5,10 +5,10 @@ spring:
   application:
     name: rinha-api
   datasource:
-    url: jdbc:mysql://localhost:5432/rinhadb
+    url: jdbc:postgresql://0.0.0.0:5432/rinhadb
     driver-class-name: org.postgresql.Driver
-    username: root
-    password:
+    username: postgres
+    password: 123456789
     hikari:
       read-only: false
   jpa:

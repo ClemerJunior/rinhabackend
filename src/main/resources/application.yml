@@ -19,7 +19,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        default_schema: rinha
+        default_schema: public
         type: trace
 ---
 logging:

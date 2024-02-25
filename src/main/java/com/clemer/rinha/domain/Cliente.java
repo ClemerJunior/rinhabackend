@@ -17,9 +17,10 @@ public class Cliente {
     @Id
     private Long id;
 
+    private String nome;
+
     @Column(updatable = false)
     private Long limite;
 
-    @PositiveOrZero
     private Long saldo;
 }

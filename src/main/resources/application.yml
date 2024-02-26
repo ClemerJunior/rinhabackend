@@ -11,6 +11,7 @@ spring:
     password: 123456789
     hikari:
       read-only: false
+
   jpa:
     show-sql: false
     generate-ddl: false
@@ -25,4 +26,4 @@ spring:
 logging:
   level:
     root: info
-    org.hibernate.SQL: debug
+    org.hibernate.SQL: off

@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +23,7 @@ public class ClienteService {
 
     @Transactional
     public TransacaoResponseDTO efetuarTransacao(Long id, TransacaoRequestDTO dto) {
+        validaTranscaoRequest(dto);
         Cliente cliente = buscarCliente(id);
 
         Long saldo = atualizarSaldo(dto, cliente);
@@ -33,7 +31,7 @@ public class ClienteService {
         clientRepository.save(cliente);
 
         Transacao transacao = new Transacao();
-        transacao.setValor(dto.getValor());
+        transacao.setValor(Long.valueOf(dto.getValor()));
         transacao.setClienteId(cliente.getId());
         transacao.setTipo(dto.getTipo());
         transacao.setDescricao(dto.getDescricao());
@@ -79,23 +77,42 @@ public class ClienteService {
 
     private Long atualizarSaldo(TransacaoRequestDTO dto, Cliente cliente) {
         String tipoTransacao = dto.getTipo();
-        Long valorTransacao = dto.getValor();
+        Long valorTransacao = Long.valueOf(dto.getValor());
         Long saldo = cliente.getSaldo();
         Long limite = cliente.getLimite();
 
-        if(tipoTransacao.equalsIgnoreCase("c")) {
-            return saldo + valorTransacao;
-        } else {
-            if(saldo - valorTransacao < (limite * -1)) {
-                throw new LimiteExcedidoException("Se fudeu, não tem limite");
-            } else {
-                return saldo - valorTransacao;
-            }
+        switch (tipoTransacao) {
+            case "c":
+                return saldo + valorTransacao;
+            case "d":
+                if(saldo - valorTransacao < (limite * -1)) {
+                    throw new LimiteExcedidoException("Se fudeu, não tem limite");
+                } else {
+                    return saldo - valorTransacao;
+                }
+            default:
+                throw new LimiteExcedidoException("Tipo de transacao inválido");
         }
     }
 
     private Cliente buscarCliente(Long id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ClienteInexistenteException("Cliente não existe"));
+    }
+
+    private void validaTranscaoRequest(TransacaoRequestDTO dto) {
+        String tipo = Optional.of(dto.getTipo()).orElse("");
+        if(!tipo.equalsIgnoreCase("c") && !tipo.equalsIgnoreCase("d")) {
+            throw new LimiteExcedidoException("Tipo de transacao inválido");
+        }
+
+        if(Objects.isNull(dto.getDescricao()) || !dto.getDescricao().matches("^[a-zA-Z0-9]{1,10}+$")) {
+            throw new LimiteExcedidoException("Descrição não pode ser vazia");
+        }
+
+        if(Objects.isNull(dto.getValor()) || !dto.getValor().matches("^[0-9]+$")) {
+            throw new LimiteExcedidoException("Valor inválido");
+        }
+
     }
 }

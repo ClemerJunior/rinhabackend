@@ -7,10 +7,10 @@ CREATE TABLE cliente (
 
 CREATE TABLE transacao (
     id SMALLINT PRIMARY KEY,
-    client_id SMALLINT REFERENCES cliente(id) ON DELETE CASCADE,
+    cliente_id SMALLINT,
     valor INTEGER,
     tipo CHAR(1),
-    descricao varchar(50),
+    descricao varchar(10),
     realizada_em timestamp(6)
 );
 

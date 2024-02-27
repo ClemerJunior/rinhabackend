@@ -7,9 +7,12 @@ import com.clemer.rinha.exceptions.ClienteInexistenteException;
 import com.clemer.rinha.exceptions.LimiteExcedidoException;
 import com.clemer.rinha.repositories.ClientRepository;
 import com.clemer.rinha.repositories.TransacaoRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -18,15 +21,21 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ClienteService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClienteService.class);
+
     private final ClientRepository clientRepository;
     private final TransacaoRepository transacaoRepository;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransacaoResponseDTO efetuarTransacao(Long id, TransacaoRequestDTO dto) {
         validaTranscaoRequest(dto);
         Cliente cliente = buscarCliente(id);
 
+        logger.info("id: {}, tipo{}, valor: {}", id, dto.getTipo(), dto.getValor());
+
         Long saldo = atualizarSaldo(dto, cliente);
+
+        logger.info("saldo atualizado: {}", saldo);
         cliente.setSaldo(saldo);
         clientRepository.save(cliente);
 
@@ -35,9 +44,10 @@ public class ClienteService {
         transacao.setClienteId(cliente.getId());
         transacao.setTipo(dto.getTipo());
         transacao.setDescricao(dto.getDescricao());
-        transacao.setRealizada_em(LocalDateTime.now());
+        transacao.setRealizadaEm(LocalDateTime.now());
         transacaoRepository.save(transacao);
 
+        logger.info("saldoCliente: {}, limite: {}", cliente.getSaldo(), cliente.getLimite());
         return new TransacaoResponseDTO(cliente.getLimite(), saldo);
     }
 
@@ -52,10 +62,11 @@ public class ClienteService {
         return saldoDTO;
     }
 
+    @Transactional(readOnly = true)
     public ExtratoDTO consultarExtrato(Long id) {
         SaldoDTO saldoDTO = consultarSaldo(id);
 
-        List<TransacaoDTO> transacoes = transacaoRepository.findAllByClienteId(id)
+        List<TransacaoDTO> transacoes = transacaoRepository.findAllByClienteIdOrderByRealizadaEmDesc(id)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(transacao -> {
@@ -63,7 +74,7 @@ public class ClienteService {
                     transacaoDTO.setValor(transacao.getValor());
                     transacaoDTO.setTipo(transacao.getTipo());
                     transacaoDTO.setDescricao(transacao.getDescricao());
-                    transacaoDTO.setRealizada_em(transacao.getRealizada_em());
+                    transacaoDTO.setRealizada_em(transacao.getRealizadaEm());
 
                     return transacaoDTO;
                 }).toList();
@@ -72,6 +83,7 @@ public class ClienteService {
         extratoDTO.setSaldo(saldoDTO);
         extratoDTO.setUltimas_transacoes(transacoes);
 
+        logger.info("extrato: id: {}, total: {}, limite: {}", id, saldoDTO.getTotal(), saldoDTO.getLimite());
         return extratoDTO;
     }
 
@@ -113,6 +125,5 @@ public class ClienteService {
         if(Objects.isNull(dto.getValor()) || !dto.getValor().matches("^[0-9]+$")) {
             throw new LimiteExcedidoException("Valor inválido");
         }
-
     }
 }

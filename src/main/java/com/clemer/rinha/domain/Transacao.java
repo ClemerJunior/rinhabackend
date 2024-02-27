@@ -23,6 +23,7 @@ public class Transacao {
     private String tipo;
     private Long valor;
     private String descricao;
-    private LocalDateTime realizada_em;
+    @Column(name = "realizada_em")
+    private LocalDateTime realizadaEm;
 
 }

@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
 
-    Optional<List<Transacao>> findAllByClienteId(Long cliente_id);
+    Optional<List<Transacao>> findAllByClienteIdOrderByRealizadaEmDesc(Long cliente_id);
 }

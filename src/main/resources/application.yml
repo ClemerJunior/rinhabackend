@@ -11,6 +11,11 @@ spring:
     password: 123456789
     hikari:
       read-only: false
+      minimum-idle: 20
+      maximum-pool-size: 300
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      connection-timeout: 600000
 
   jpa:
     show-sql: false
